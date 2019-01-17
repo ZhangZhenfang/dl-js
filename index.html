@@ -1,158 +1,86 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-    <meta charset="UTF-8">
-    <title>Title</title>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>title</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <script src="js/two.js"></script>
     <script src="js/perception.js"></script>
     <style>
-        #canvas {
-            border: 1px solid black;
-            padding: 0px 0px;
+        .btn {
+            width: 100px;
+            height: 40px;
+            margin: 10px;
+        }
+        #container {
+            width: 60%;
+            float: left;
+        }
+        #menu {
+            width: 100px;
+            float: left;
         }
     </style>
 </head>
 <body>
     <div id="container">
-        <canvas id="canvas" width="600" height="600"></canvas>
+
     </div>
-    <button onclick="switchColor();">切换颜色</button>
-    <button onclick="doTrain();">train</button>
-    <script>
-        var canvas = document.getElementById("canvas");
+    <div id="menu">
+        <button class="btn" onclick="switchColor();">切换颜色</button>
+        <button class="btn" onclick="doTrain();">训练</button>
+        <button class="btn" onclick="window.location.reload();">重置</button>
+    </div>
+    
+</body>
+<script>
+    var color = 1;
+    var x = new Array();
+    var result = new Array();
+    var coordernate = new twoDCoordinate(600, 600, 600, 600);
+    var canvas = coordernate.getDomElement();
+    canvas.addEventListener("click", function(event) {
+        collectPoint(canvas, event);
+    });
+    function collectPoint(canvas, event) {
         var ctx = canvas.getContext('2d');
-        var color = 1;
-        // 坐标轴距离画布上右下左的边距
-        var padding = {
-            top: 10,
-            right: 10,
-            bottom: 10,
-            left: 10
-        }
-        // 求坐标轴原点的坐标
-        var origin = {
-            x: padding.left,
-            y: canvas.height - padding.bottom
-        }
-        var pointsA = new Array();
-        var pointsB = new Array();
-        var x = new Array();
-        var result = new Array();
-        drawXY();
-        
-        canvas.addEventListener("click", function(event) {
-            collectPoint(canvas, event);
-        });
+        var point = coordernate.getMouseXY(event);
+        coordernate.drawPoint(point.x, point.y, color);
+        x.push([point.x, point.y, 1]);
+        result.push(color);
+        console.log(x);
+        console.log(result);
+    }
+    document.getElementById("container").appendChild(canvas);
+    var rect = canvas.getBoundingClientRect();
+    console.log(rect.left, rect.bottom);
+    console.log(coordernate.origin);
 
-        function collectPoint(canvas, event) {
-            var ctx = canvas.getContext('2d');
-            var point = getMousePos(canvas, event);
-            drawPoint(ctx, point);
-            x.push([point.x, point.y, 1]);
-            result.push(point.color);
-            console.log(x);
-            console.log(result);
-        }
-        function getMousePos(cvs, event) {
-            var ctx = cvs.getContext('2d');
-            var rect = cvs.getBoundingClientRect();
-            var x = event.clientX - rect.left - padding.left;
-            var y = rect.bottom - event.clientY - padding.top;
-            var drawX = event.clientX - rect.left;
-            var drawY = event.clientY - rect.top;
-            var point = {
-                x, y, drawX, drawY, color
-            };
-            console.log(point);
-            return point;
-        }
-        function drawXY() {
-            var cvs = document.getElementById('canvas');
-            var ctx = cvs.getContext('2d');
-            
-            // 坐标轴中箭头的宽和高
-            var arrow = {
-                width: 12,
-                height: 12
-            }
-            // 求坐标轴y轴上顶点的坐标
-            var vertexTop = {
-                x: padding.left,
-                y: padding.top
-            }
-            // 求坐标轴x轴右顶点的坐标
-            var vertexRight = {
-                x: cvs.width - padding.right,
-                y: cvs.height - padding.bottom
-            }
-            // 画坐标轴中的两条线
-            ctx.beginPath();
-            ctx.moveTo( vertexTop.x, vertexTop.y );
-            ctx.lineTo( origin.x, origin.y );
-            ctx.lineTo( vertexRight.x, vertexRight.y );
-            ctx.stroke();
-    
-            // 画上顶点箭头
-            ctx.beginPath();
-            ctx.moveTo( vertexTop.x, vertexTop.y );
-            ctx.lineTo( vertexTop.x - arrow.width / 2, vertexTop.y + arrow.height );
-            ctx.moveTo( vertexTop.x, vertexTop.y );
-            ctx.lineTo( vertexTop.x + arrow.width / 2, vertexTop.y + arrow.height );
-            ctx.stroke();
-    
-            // 画右顶点箭头
-            ctx.beginPath();
-            ctx.moveTo( vertexRight.x, vertexRight.y );
-            ctx.lineTo( vertexRight.x - arrow.height, vertexRight.y - arrow.width / 2 );
-            ctx.moveTo( vertexRight.x, vertexRight.y );
-            ctx.lineTo( vertexRight.x - arrow.height, vertexRight.y + arrow.width / 2 );
-            ctx.stroke();
-        }
+    function switchColor() {
+        color = 0 - color;
+        console.log(color);
+    }
 
-        function drawPoint(ctx, point) {
-            console.log(point);
-            //设置绘制颜色
-            ctx.fillStyle = color == 1 ? "red" : "blue";
-            //绘制成矩形
-            // ctx.arc(point.x, point.y,5, 0, Math.PI * 5);
-            ctx.fillRect(point.drawX - 2, point.drawY - 2, 4, 4);
-            //设置字体样式
-            ctx.font = "10px bold 宋体";
-            //绘制文字
-            ctx.fillText("(" + point.x + ", " + point.y + ")", point.drawX, point.drawY);
-            // ctx.fill();
-        }
+    function doTrain() {
+        var weight = train(0.1, x, result, 1000000);
+        console.log(weight);
+        var k = 0 - weight[0] / weight[1];
+        var b = 0 - weight[2] / weight[1];
 
-        function switchColor() {
-            color = 0 - color;
-            console.log(color);
-        }
-
-        function doTrain() {
-            var ctx = document.getElementById("canvas").getContext('2d');
-            var weight = train(0.5, x, result, 500);
-            console.log(weight);
-            var k = 0 - weight[0] / weight[1];
-            var b = 0 - weight[2];
+        if (b > 0) {
             var x1 = 0;
             var y1 = x1 * k + b;
-            var x2 = 400;
+            var x2 = 500;
             var y2 = x2 * k + b;
-            // drawLine(-k, b, ctx);
-            console.log(origin);
-            console.log(k, b);
-            var start = {x : origin.x, y : origin.y - y1};
-            var end = {x : x2, y : origin.y - y2};
-            console.log(start, end);
-            drawLine(start, end);
-            console.log(weight);
+            coordernate.drawLine({x : x1, y : y1}, {x : x2, y : y2});    
+        } else {
+            var y1 = 0;
+            var x1 = -b / k;
+            var y2 = 500;
+            var x2 = (y2 - b) / k;
+            coordernate.drawLine({x : x1, y : y1}, {x : x2, y : y2});  
         }
-        function drawLine(start, end) {
-            ctx.beginPath();
-            ctx.moveTo( start.x, start.y );
-            ctx.lineTo( end.x, end.y );
-            ctx.stroke();
-        }
-        
-    </script>
-</body>
+    }
+</script>
 </html>

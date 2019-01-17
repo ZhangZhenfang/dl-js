@@ -1,31 +1,43 @@
+
 var weight;
-
 var rate;
-
+var inited = 0;
 function randomWeight(l) {
-    weight = new Array(l);
-    for (var i = 0; i < weight.length; i++) {
-        weight[i] = (Math.random() - 0.5) * 2;
+    if (inited == 0) {
+        weight = new Array(l);
+        for (var i = 0; i < weight.length; i++) {
+            weight[i] = (Math.random() - 0.5) * 2;
+        }
+        inited = 1;
     }
 }
 
 function train(rate, x, result, times) {
     randomWeight(x[0].length);
     for (var l = 0; l < times; l++) {
-        var o = new Array(x.length);
-        for (var i = 0; i < o.length; i++) {
-            o[i] = sgn(x[i]);
-        }
-        for (var i = 0; i < o.length; i++) {
+        var o;
+        for (var i = 0; i < x.length; i++) {
+            o = sgn(x[i]);
             for (var j = 0; j < weight.length; j++) {
-                weight[j] += rate * (result[i] - o[i]) * x[i][j];
+                weight[j] += rate * (result[i] - o) * x[i][j];
             }
         }
-
     }
     return weight;
 }
-
+function oneTrain(rate, x, result) {
+    if (inited == 0) {
+        randomWeight(x[0].length);
+    }
+    var o;
+    for (var i = 0; i < x.length; i++) {
+        o = sgn(x[i]);
+        for (var j = 0; j < weight.length; j++) {
+            weight[j] += rate * (result[i] - o) * x[i][j];
+        }
+    }
+    return weight;
+}
 function sgn(x) {
     var result = 0;
     for (var i = 0; i < x.length; i++) {
@@ -44,6 +56,3 @@ function test() {
     console.log(sgn([3, 1, 1]));
 }
 test();
-
-// randomWeight(5);
-// console.log(weight);
