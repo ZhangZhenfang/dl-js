@@ -12,7 +12,11 @@ class Perceptron {
         for (var l = 0; l < times; l++) {
             var o;
             for (var i = 0; i < x.length; i++) {
-                o = this.activator(x[i], this.weights);
+                var tmp = 0;
+                for (var j = 0; j < x[i].length; j++) {
+                    tmp += x[i][j] * this.weights[j];
+                }
+                o = this.activator(tmp);
                 for (var j = 0; j < this.weights.length; j++) {
                     this.weights[j] += rate * (result[i] - o) * x[i][j];
                 }

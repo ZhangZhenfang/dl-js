@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>title</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <script src="js/two.js"></script>
+    <script src="js/Perceptron.js"></script>
+    <script src="js/activators.js"></script>
+
+    <style>
+        .btn {
+            width: 100px;
+            height: 40px;
+            margin: 10px;
+        }
+        #container {
+            width: 60%;
+            float: left;
+        }
+        #menu {
+            width: 100px;
+            float: left;
+        }
+    </style>
+</head>
+<body>
+    <div id="container">
+
+    </div>
+    <div id="menu">
+        <button class="btn" onclick="switchColor();">切换颜色</button>
+        <button class="btn" onclick="doTrain();">训练</button>
+        <button class="btn" onclick="window.location.reload();">重置</button>
+    </div>
+    
+</body>
+<script>
+    var color = 1;
+    var x = new Array();
+    var result = new Array();
+    var coordernate = new twoDCoordinate(600, 600, 600, 600);
+    var canvas = coordernate.getDomElement();
+    canvas.addEventListener("click", function(event) {
+        collectPoint(canvas, event);
+    });
+    function collectPoint(canvas, event) {
+        var ctx = canvas.getContext('2d');
+        var point = coordernate.getMouseXY(event);
+        coordernate.drawPoint(point.x, point.y, color);
+        x.push([point.x, point.y, 1]);
+        result.push(color);
+    }
+    document.getElementById("container").appendChild(canvas);
+    var rect = canvas.getBoundingClientRect();
+
+    function switchColor() {
+        color = 0 - color;
+    }
+
+    function doTrain() {
+        var perceptron = new Perceptron(3, sgn);
+        var weight = perceptron.train(0.1, x, result, 100000);
+        console.log(weight);
+        var k = 0 - weight[0] / weight[1];
+        var b = 0 - weight[2] / weight[1];
+        if (b > 0) {
+            var x1 = 0;
+            var y1 = x1 * k + b;
+            var x2 = 500;
+            var y2 = x2 * k + b;
+            coordernate.drawLine({x : x1, y : y1}, {x : x2, y : y2});    
+        } else {
+            var y1 = 0;
+            var x1 = -b / k;
+            var y2 = 500;
+            var x2 = (y2 - b) / k;
+            coordernate.drawLine({x : x1, y : y1}, {x : x2, y : y2});  
+        }
+    }
+</script>
+</html>
