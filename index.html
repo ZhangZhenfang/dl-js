@@ -6,7 +6,9 @@
     <title>title</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <script src="js/two.js"></script>
-    <script src="js/perception.js"></script>
+    <script src="js/Perceptron.js"></script>
+    <script src="js/activators.js"></script>
+
     <style>
         .btn {
             width: 100px;
@@ -49,25 +51,19 @@
         coordernate.drawPoint(point.x, point.y, color);
         x.push([point.x, point.y, 1]);
         result.push(color);
-        console.log(x);
-        console.log(result);
     }
     document.getElementById("container").appendChild(canvas);
     var rect = canvas.getBoundingClientRect();
-    console.log(rect.left, rect.bottom);
-    console.log(coordernate.origin);
 
     function switchColor() {
         color = 0 - color;
-        console.log(color);
     }
 
     function doTrain() {
-        var weight = train(0.1, x, result, 1000000);
-        console.log(weight);
+        var perceptron = new Perceptron(3, sgn);
+        var weight = perceptron.train(0.1, x, result, 100000);
         var k = 0 - weight[0] / weight[1];
         var b = 0 - weight[2] / weight[1];
-
         if (b > 0) {
             var x1 = 0;
             var y1 = x1 * k + b;

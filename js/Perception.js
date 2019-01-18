@@ -1,5 +1,0 @@
-class Perception {
-    constructor() {
-        
-    };
-};
