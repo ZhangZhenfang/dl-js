@@ -60,11 +60,12 @@
     }
 
     function doTrain() {
+        var x = regularizeX(this.x);
         var perceptron = new Perceptron(3, sgn);
-        var weight = perceptron.train(0.1, x, result, 100000);
+        var weight = perceptron.train(0.1, x, result, 1000000);
         console.log(weight);
         var k = 0 - weight[0] / weight[1];
-        var b = 0 - weight[2] / weight[1];
+        var b = 0 - weight[2] * 600 / weight[1];
         if (b > 0) {
             var x1 = 0;
             var y1 = x1 * k + b;
@@ -78,6 +79,24 @@
             var x2 = (y2 - b) / k;
             coordernate.drawLine({x : x1, y : y1}, {x : x2, y : y2});  
         }
+    }
+    function regularizeX(a) {
+        var result = new Array(a.length);
+        for(var i = 0; i < a.length; i++) {
+            result[i] = new Array(a[i].length);
+            for(var j = 0; j < a[i].length - 1; j++) {
+                result[i][j] = a[i][j] / 600;
+            }
+            result[i][a[i].length - 1] = 1;
+        }
+        return result;
+    }
+    function regularizeResult(a) {
+        var result = new Array(a.length);
+        for(var i = 0; i < a.length; i++) {
+            result[i] = a[i] / 600;
+        }
+        return result;
     }
 </script>
 </html>
